@@ -11,11 +11,11 @@
             "@client/*": [
                 "./*"
             ],
-            "@shared": [ 
-                "../shared/index.ts" 
+            "@common": [ 
+                "../common/index.ts" 
             ],
-            "@shared/*": [
-                "../shared/*"
+            "@common/*": [
+                "../common/*"
             ],
             "@/*": [ "../*" ],
             "@@/*": [ "../../*" ]
@@ -23,7 +23,7 @@
     },
     "include": [
         "./",
-        "../shared"
+        "../common"
     ],
     "exclude": [ "**/node_modules", "**/__tests__/*" ]
 }

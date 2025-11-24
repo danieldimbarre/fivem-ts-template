@@ -40,7 +40,7 @@ const watchMode = process.argv.findIndex((arg) => arg === '--watch') >= 0;
                         });
 
                         build.onResolve({ filter: /.*/ }, (args) => {
-                            if (!args.path.match(/^@(server|client|shared)/) && args.kind === 'import-statement') {
+                            if (!args.path.match(/^@(server|client|common)/) && args.kind === 'import-statement') {
                                 let modulePath;
 
                                 if (args.path.startsWith('@/')) {
@@ -67,18 +67,37 @@ const watchMode = process.argv.findIndex((arg) => arg === '--watch') >= 0;
                 },
             ],
         },
+        {
+            label: 'shared',
+            platform: 'neutral',
+            entryPoints: ['./src/shared/index.ts'],
+            target: ['es2020'],
+            format: 'cjs',
+            noMinify: true,
+        },
     ];
 
     for (const config of buildConfigs) {
         const targetName = config.label;
         delete config.label;
 
+        // Create a copy of config to pass to esbuild and remove
+        // custom flags that are not valid esbuild options.
+        const buildOptions = { ...config };
+        delete buildOptions.noMinify;
+        delete buildOptions.noObfuscate;
+        // If the config requests no minify, also disable tree shaking
+        // so esbuild doesn't remove unused variables/exports.
+        if (config.noMinify) {
+            buildOptions.treeShaking = false;
+        }
+
         try {
             const buildResult = await esbuild.build({
                 bundle: true,
                 assetNames: `[name].[ext]`,
                 outdir: 'dist/' + targetName,
-                minify: productionMode,
+                minify: productionMode && !config.noMinify,
                 sourcemap: !productionMode,
                 metafile: true,
                 watch: watchMode
@@ -91,10 +110,10 @@ const watchMode = process.argv.findIndex((arg) => arg === '--watch') >= 0;
                           },
                       }
                     : false,
-                ...config,
+                ...buildOptions,
             });
 
-            if (productionMode) {
+                if (productionMode) {
                 const analysis = await esbuild.analyzeMetafile(buildResult.metafile, {
                     color: true,
                     verbose: true,

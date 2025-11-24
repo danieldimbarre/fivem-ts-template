@@ -1,1 +1,2 @@
-export const TAG = 'TEMPLATE';
+
+const SHARED = 'TEMPLATE SHARED';

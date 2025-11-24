@@ -1,4 +1,4 @@
-import { TAG } from '@shared';
+import { TAG } from '@common';
 
 on('onResourceStart', (resourceName: string) => {
     if (resourceName !== GetCurrentResourceName()) 
